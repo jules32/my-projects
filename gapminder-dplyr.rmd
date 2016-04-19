@@ -1,0 +1,92 @@
+---
+title: "Gapminder analysis with dplyr"
+author: Julie Lowndes lowndes@nceas.ucsb.edu
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading our packages
+```{r}
+
+## install.packages("dplyr") # do this only once! 
+library(dplyr) # do this every time I restart R and need dplyr!
+
+# install gapminder data
+library(gapminder) # install.packages('gapminder')
+str(gapminder)
+
+```
+
+
+# Exploration with gapminder
+
+```{r }
+
+# simple filter example
+filter(gapminder, lifeExp < 29)
+# compare without dplyr
+gapminder[gapminder$lifeExp < 29, ]
+
+
+filter(gapminder, country == "Rwanda")
+# compare without dplyr
+subset(gapminder, country == "Rwanda")
+
+a <- filter(gapminder, country %in% c("Rwanda", "Afghanistan"))
+
+
+# the pipe operator! %>% 
+# from magrittr package
+
+gapminder %>% head 
+head(gapminder) # same as 
+
+gapminder %>% head(3)
+head(gapminder, 3)
+
+## subset with select()
+select(gapminder, year, lifeExp) # great, but!
+gapminder %>% select(year, lifeExp)
+
+gapminder %>% 
+  select(year, lifeExp) %>%
+  head(4)
+
+
+# calculate mean gdp of Cambodia
+
+gapminder %>%
+  filter(country == "Cambodia") %>%
+  select(-continent, -lifeExp)  # same as select(country, year, pop, gdpPercap)
+# compare to base R
+gapminder[gapminder$country == "Cambodia", c("country", "year", "pop", "gdpPercap")]
+
+
+# continue with mutate
+gapminder %>%
+  mutate(gdp = pop * gdpPercap)
+
+# exercise
+# What is the gdp of Cambodia for each year in our dataset? Use filter, select, and mutate. "gapminder then filter then select then mutate' 
+
+gapminder %>%
+ # filter(country == "Cambodia") %>%
+  select(-continent, -lifeExp) %>%
+  mutate(gdp = pop * gdpPercap) %>%
+  group_by(country) %>%
+  summarise(mean_gdp = mean(gdp)) %>%
+  ungroup() # do this if you group_by!
+
+
+## with a for loop
+# for (country in all_countries) {
+#   our analysis. 
+# }
+# take whatever is on the left of the %>%  and passes it to whatever is on the right, as the first argument
+
+
+```
+
